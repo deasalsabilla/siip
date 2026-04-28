@@ -124,7 +124,7 @@
       <!-- End Kategori Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="produk.html">
+        <a class="nav-link collapsed" href="produk.php">
           <i class="bi bi-box-seam"></i>
           <span>Data Produk</span>
         </a>

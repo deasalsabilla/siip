@@ -5,12 +5,12 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Kategori Produk - Sistem Informasi Inventory Produk (SIIP)</title>
+  <title>Components / Accordion - NiceAdmin Bootstrap Template</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/logo-sistem.png" rel="icon">
+  <link href="assets/img/favicon.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
@@ -29,6 +29,13 @@
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
 
+  <!-- =======================================================
+  * Template Name: NiceAdmin
+  * Updated: Sep 18 2023 with Bootstrap v5.3.2
+  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
 </head>
 
 <body>
@@ -44,59 +51,63 @@
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
 
+
     <nav class="header-nav ms-auto">
       <ul class="d-flex align-items-center">
+
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-              <li class="dropdown-header">
-                <h6>Kevin Anderson</h6>
-                <span>Web Designer</span>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
+          </a><!-- End Profile Iamge Icon -->
 
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                  <i class="bi bi-person"></i>
-                  <span>My Profile</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+            <li class="dropdown-header">
+              <h6>Kevin Anderson</h6>
+              <span>Web Designer</span>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
 
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                  <i class="bi bi-gear"></i>
-                  <span>Account Settings</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                <i class="bi bi-person"></i>
+                <span>My Profile</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
 
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                  <i class="bi bi-question-circle"></i>
-                  <span>Need Help?</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                <i class="bi bi-gear"></i>
+                <span>Account Settings</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
 
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <i class="bi bi-box-arrow-right"></i>
-                  <span>Sign Out</span>
-                </a>
-              </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
+                <i class="bi bi-question-circle"></i>
+                <span>Need Help?</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
 
-            </ul><!-- End Profile Dropdown Items -->
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="#">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+              </a>
+            </li>
+
+          </ul><!-- End Profile Dropdown Items -->
         </li><!-- End Profile Nav -->
 
       </ul>
@@ -116,7 +127,7 @@
       <!-- End Dashboard Nav -->
 
       <li class="nav-item">
-        <a class="nav-link" href="kategori_produk.php">
+        <a class="nav-link collapsed" href="kategori_produk.php">
           <i class="bi bi-tags"></i>
           <span>Kategori Produk</span>
         </a>
@@ -132,7 +143,7 @@
       <!-- End Produk Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="laporan.php">
+        <a class="nav-link" href="laporan.php">
           <i class="bi bi-bar-chart-line"></i>
           <span>Laporan</span>
         </a>
@@ -153,67 +164,86 @@
   <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Kategori Produk</h1>
+      <h1>Laporan</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-          <li class="breadcrumb-item active">Kategori Produk</li>
+          <li class="breadcrumb-item active">Laporan</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
 
-    <div class="row">
-        <div class="col-lg-12">
-
-          <div class="card">
-            <div class="card-body mt-3">
-              <a href="t_kat.php" class="btn btn-primary">Tambah Data</a>
-            </div>
-          </div>
-        </div>
-    </div>
-
     <section class="section">
       <div class="row">
-        <div class="col-lg-12">
 
-          <div class="card">
-            <div class="card-body mt-3">
-              <!-- Table with stripped rows -->
-              <table class="table datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">No</th>
-                    <th scope="col">Kode Kategori</th>
-                    <th scope="col">Kategori Produk</th>
-                    <th scope="col">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                  include "koneksi.php";
-                  $no = 1;
-                  $sql = mysqli_query($conn, "SELECT * FROM categories");
-                  while($data = mysqli_fetch_array($sql)){
-                  ?>
-                  <tr>
-                    <td><?php echo $no++; ?></td>
-                    <td><?php echo $data['kd_kat']; ?></td>
-                    <td><?php echo $data['category_name']; ?></td>
-                    <td>
-                      <a href="e_kat.php?id=<?php echo $data['id']; ?>" class="btn btn-warning">Edit</a>
-                      <a href="h_kat.php?id=<?php echo $data['id']; ?>" class="btn btn-danger" onclick="return confirm('Apakah Anda Yakin Ingin Menghapus Data?')">Hapus</a>
-                    </td>
-                  </tr>
-                <?php } ?>
-                </tbody>
-              </table>
-              <!-- End Table with stripped rows -->
+        <!-- Laporan Stok Barang -->
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Laporan Stok Barang</h5>
+              <p class="text-muted">Menampilkan seluruh data stok barang saat ini.</p>
 
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-primary">Total Item: 150</span>
+                <a href="laporan_stok.php" class="btn btn-sm btn-primary">
+                  Lihat Laporan
+                </a>
+              </div>
             </div>
           </div>
-
         </div>
+
+        <!-- Laporan Barang Masuk -->
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Laporan Barang Masuk</h5>
+              <p class="text-muted">Riwayat barang yang masuk ke gudang.</p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-success">Total Transaksi: 80</span>
+                <a href="laporan_barang_masuk.php" class="btn btn-sm btn-success">
+                  Lihat Laporan
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Laporan Barang Keluar -->
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Laporan Barang Keluar</h5>
+              <p class="text-muted">Riwayat barang yang keluar dari gudang.</p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-danger">Total Transaksi: 65</span>
+                <a href="laporan_barang_keluar.php" class="btn btn-sm btn-danger">
+                  Lihat Laporan
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Laporan Stok Minimum -->
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Stok Minimum</h5>
+              <p class="text-muted">Barang dengan stok hampir habis.</p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-warning">Item Kritis: 12</span>
+                <a href="laporan_stok_minimum.php" class="btn btn-sm btn-warning">
+                  Lihat Laporan
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 

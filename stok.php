@@ -8,6 +8,51 @@ if (!isset($_SESSION["login"])) {
     exit;
 }
 ?>
+
+<?php
+include "koneksi.php";
+
+if (isset($_POST['submit'])) {
+
+    $product_id = $_POST['product_id'];
+    $change_type = $_POST['change_type'];
+    $qty = intval($_POST['qty']);
+    $note = $_POST['note'];
+    $user_id = $_SESSION['user_id'];
+
+    // ambil stok sekarang
+    $q = mysqli_query($conn, "SELECT stock FROM products WHERE id='$product_id'");
+    $data = mysqli_fetch_assoc($q);
+
+    $stock_before = $data['stock'];
+
+    // hitung stok baru
+    if ($change_type == "ADD") {
+        $stock_after = $stock_before + $qty;
+    } else {
+        $stock_after = $stock_before - $qty;
+
+        if ($stock_after < 0) {
+            echo "<script>alert('Stok tidak cukup!');</script>";
+            exit;
+        }
+    }
+
+    // update stok
+    mysqli_query($conn, "UPDATE products SET stock='$stock_after' WHERE id='$product_id'");
+
+    // insert log
+    mysqli_query($conn, "INSERT INTO stock_logs 
+        (product_id, change_type, qty, stock_before, stock_after, note, created_by) 
+        VALUES 
+        ('$product_id','$change_type','$qty','$stock_before','$stock_after','$note','$user_id')
+    ");
+
+    header("Location: stok.php?success=1");
+    exit;
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -39,16 +84,15 @@ if (!isset($_SESSION["login"])) {
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Updated: Sep 18 2023 with Bootstrap v5.3.2
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+
 </head>
 
 <body>
+    <?php if (isset($_GET['success'])): ?>
+        <script>
+            alert('Stok berhasil diperbarui!');
+        </script>
+    <?php endif; ?>
 
     <!-- ======= Header ======= -->
     <header id="header" class="header fixed-top d-flex align-items-center">
@@ -72,36 +116,6 @@ if (!isset($_SESSION["login"])) {
                         <li class="dropdown-header">
                             <h6><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : 'User'; ?></h6>
                             <span><?php echo isset($_SESSION['role']) ? $_SESSION['role'] : 'Role'; ?></span>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-person"></i>
-                                <span>My Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-gear"></i>
-                                <span>Account Settings</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Need Help?</span>
-                            </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
@@ -190,19 +204,24 @@ if (!isset($_SESSION["login"])) {
                         <div class="card-body">
                             <h5 class="card-title">Manajemen Stok</h5>
 
-                            <form>
+                            <form method="POST">
                                 <div class="mb-3">
                                     <label class="form-label">Pilih Produk</label>
-                                    <select class="form-select">
+                                    <select name="product_id" class="form-select" required>
                                         <option selected disabled>-- Pilih Produk --</option>
-                                        <option>Produk A</option>
-                                        <option>Produk B</option>
+                                        <?php
+                                        include "koneksi.php";
+                                        $produk = mysqli_query($conn, "SELECT * FROM products");
+                                        while ($p = mysqli_fetch_assoc($produk)) {
+                                            echo "<option value='{$p['id']}'>{$p['product_name']}</option>";
+                                        }
+                                        ?>
                                     </select>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Jenis Aksi</label>
-                                    <select class="form-select">
+                                    <select name="change_type" class="form-select">
                                         <option value="ADD">Tambah Stok</option>
                                         <option value="REDUCE">Kurangi Stok</option>
                                     </select>
@@ -210,15 +229,15 @@ if (!isset($_SESSION["login"])) {
 
                                 <div class="mb-3">
                                     <label class="form-label">Jumlah</label>
-                                    <input type="number" class="form-control" placeholder="Masukkan jumlah">
+                                    <input type="number" name="qty" class="form-control" required>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Catatan</label>
-                                    <textarea class="form-control" rows="2" placeholder="Opsional"></textarea>
+                                    <textarea name="note" class="form-control" rows="2"></textarea>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary w-100">
+                                <button type="submit" name="submit" class="btn btn-primary w-100">
                                     Simpan Perubahan
                                 </button>
                             </form>
@@ -244,20 +263,29 @@ if (!isset($_SESSION["login"])) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>28 Apr 2026</td>
-                                        <td>Produk A</td>
-                                        <td><span class="badge bg-success">+ (ADD)</span></td>
-                                        <td>10</td>
-                                        <td>Admin</td>
-                                    </tr>
-                                    <tr>
-                                        <td>27 Apr 2026</td>
-                                        <td>Produk B</td>
-                                        <td><span class="badge bg-danger">- (REDUCE)</span></td>
-                                        <td>3</td>
-                                        <td>Staff</td>
-                                    </tr>
+                                    <?php
+                                    $query = mysqli_query($conn, "
+    SELECT sl.*, p.product_name, u.name 
+    FROM stock_logs sl
+    JOIN products p ON sl.product_id = p.id
+    JOIN users u ON sl.created_by = u.id
+    ORDER BY sl.created_at DESC
+");
+
+                                    while ($row = mysqli_fetch_assoc($query)) {
+                                        $badge = $row['change_type'] == 'ADD'
+                                            ? "<span class='badge bg-success'>+ (ADD)</span>"
+                                            : "<span class='badge bg-danger'>- (REDUCE)</span>";
+
+                                        echo "<tr>
+        <td>" . date('d M Y', strtotime($row['created_at'])) . "</td>
+        <td>{$row['product_name']}</td>
+        <td>$badge</td>
+        <td>{$row['qty']}</td>
+        <td>{$row['name']}</td>
+    </tr>";
+                                    }
+                                    ?>
                                 </tbody>
                             </table>
 

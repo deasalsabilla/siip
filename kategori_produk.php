@@ -1,3 +1,14 @@
+<?php
+session_start();
+include "koneksi.php";
+
+// Cek apakah user sudah login
+if (!isset($_SESSION["login"])) {
+  header("Location: login.php");
+  exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,40 +61,13 @@
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
+          </a>
+
+
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
               <li class="dropdown-header">
-                <h6>Kevin Anderson</h6>
-                <span>Web Designer</span>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                  <i class="bi bi-person"></i>
-                  <span>My Profile</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                  <i class="bi bi-gear"></i>
-                  <span>Account Settings</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                  <i class="bi bi-question-circle"></i>
-                  <span>Need Help?</span>
-                </a>
+                <h6><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : 'User'; ?></h6>
+                <span><?php echo isset($_SESSION['role']) ? $_SESSION['role'] : 'Role'; ?></span>
               </li>
               <li>
                 <hr class="dropdown-divider">
@@ -163,14 +147,14 @@
     </div><!-- End Page Title -->
 
     <div class="row">
-        <div class="col-lg-12">
+      <div class="col-lg-12">
 
-          <div class="card">
-            <div class="card-body mt-3">
-              <a href="t_kat.php" class="btn btn-primary">Tambah Data</a>
-            </div>
+        <div class="card">
+          <div class="card-body mt-3">
+            <a href="t_kat.php" class="btn btn-primary">Tambah Data</a>
           </div>
         </div>
+      </div>
     </div>
 
     <section class="section">
@@ -194,18 +178,18 @@
                   include "koneksi.php";
                   $no = 1;
                   $sql = mysqli_query($conn, "SELECT * FROM categories");
-                  while($data = mysqli_fetch_array($sql)){
+                  while ($data = mysqli_fetch_array($sql)) {
                   ?>
-                  <tr>
-                    <td><?php echo $no++; ?></td>
-                    <td><?php echo $data['kd_kat']; ?></td>
-                    <td><?php echo $data['category_name']; ?></td>
-                    <td>
-                      <a href="e_kat.php?id=<?php echo $data['id']; ?>" class="btn btn-warning">Edit</a>
-                      <a href="h_kat.php?id=<?php echo $data['id']; ?>" class="btn btn-danger" onclick="return confirm('Apakah Anda Yakin Ingin Menghapus Data?')">Hapus</a>
-                    </td>
-                  </tr>
-                <?php } ?>
+                    <tr>
+                      <td><?php echo $no++; ?></td>
+                      <td><?php echo $data['kd_kat']; ?></td>
+                      <td><?php echo $data['category_name']; ?></td>
+                      <td>
+                        <a href="e_kat.php?id=<?php echo $data['id']; ?>" class="btn btn-warning">Edit</a>
+                        <a href="h_kat.php?id=<?php echo $data['id']; ?>" class="btn btn-danger" onclick="return confirm('Apakah Anda Yakin Ingin Menghapus Data?')">Hapus</a>
+                      </td>
+                    </tr>
+                  <?php } ?>
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->

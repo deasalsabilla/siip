@@ -20,6 +20,7 @@ if (isset($_POST['login'])) {
       if ($user['is_active'] == 1) {
 
         // simpan session
+        $_SESSION['login'] = True;
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['name'] = $user['name'];
         $_SESSION['role'] = $user['role'];

@@ -201,7 +201,7 @@ if (isset($_POST['update'])) {
 
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Tambah Kategori Produk</h5>
+                            <h5 class="card-title">Edit Kategori Produk</h5>
 
                             <form class="row g-3" method="post">
                                 <div class="col-12">

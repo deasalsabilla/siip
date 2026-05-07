@@ -4,8 +4,105 @@ include "koneksi.php";
 
 // Cek apakah user sudah login
 if (!isset($_SESSION["login"])) {
-    header("Location: login.php");
-    exit;
+  header("Location: login.php");
+  exit;
+}
+?>
+
+<?php
+include "koneksi.php";
+date_default_timezone_set('Asia/Jakarta');
+
+// Total produk
+$q_produk = mysqli_query($conn, "SELECT COUNT(*) as total_produk FROM products");
+$data_produk = mysqli_fetch_assoc($q_produk);
+
+// Total stok
+$q_stok = mysqli_query($conn, "SELECT SUM(stock) as total_stok FROM products");
+$data_stok = mysqli_fetch_assoc($q_stok);
+
+// Total kategori
+$q_kategori = mysqli_query($conn, "SELECT COUNT(*) as total_kategori FROM categories");
+$data_kategori = mysqli_fetch_assoc($q_kategori);
+
+// Barang Masuk per hari (bulan ini)
+$q_masuk = mysqli_query($conn, "
+  SELECT DAY(created_at) as hari, SUM(qty) as total
+  FROM stock_logs
+  WHERE change_type='ADD' 
+  AND MONTH(created_at)=MONTH(CURRENT_DATE())
+  AND YEAR(created_at)=YEAR(CURRENT_DATE())
+  GROUP BY DAY(created_at)
+");
+
+// Barang Keluar per hari (bulan ini)
+$q_keluar = mysqli_query($conn, "
+  SELECT DAY(created_at) as hari, SUM(qty) as total
+  FROM stock_logs
+  WHERE change_type='REDUCE'
+  AND MONTH(created_at)=MONTH(CURRENT_DATE())
+  AND YEAR(created_at)=YEAR(CURRENT_DATE())
+  GROUP BY DAY(created_at)
+");
+
+// Siapkan array 1–31 (default 0)
+$masuk = array_fill(1, 31, 0);
+$keluar = array_fill(1, 31, 0);
+
+// isi data masuk
+while ($row = mysqli_fetch_assoc($q_masuk)) {
+  $masuk[$row['hari']] = (int)$row['total'];
+}
+
+// isi data keluar
+while ($row = mysqli_fetch_assoc($q_keluar)) {
+  $keluar[$row['hari']] = (int)$row['total'];
+}
+
+$query = mysqli_query($conn, "
+  SELECT p.product_name, p.stock, c.category_name
+  FROM products p
+  JOIN categories c ON p.category_id = c.id
+  ORDER BY p.created_at DESC
+  LIMIT 5
+");
+
+// ambil produk dengan stok <= min_stock
+$q_menipis = mysqli_query($conn, "
+  SELECT product_name, stock, min_stock
+  FROM products
+  WHERE stock <= min_stock
+  ORDER BY stock ASC
+  LIMIT 5
+");
+
+$q_aktivitas = mysqli_query($conn, "
+  SELECT sl.*, p.product_name, u.name as user_name
+  FROM stock_logs sl
+  JOIN products p ON sl.product_id = p.id
+  JOIN users u ON sl.created_by = u.id
+  ORDER BY sl.created_at DESC
+  LIMIT 5
+");
+
+function waktu_lalu($datetime)
+{
+  $selisih = time() - strtotime($datetime);
+
+  // kalau negatif, anggap 0
+  if ($selisih < 0) $selisih = 0;
+
+  $menit = floor($selisih / 60);
+  $jam   = floor($selisih / 3600);
+  $hari  = floor($selisih / 86400);
+
+  if ($menit < 60) {
+    return $menit . " menit lalu";
+  } elseif ($jam < 24) {
+    return $jam . " jam lalu";
+  } else {
+    return $hari . " hari lalu";
+  }
 }
 ?>
 <!doctype html>
@@ -126,7 +223,7 @@ if (!isset($_SESSION["login"])) {
       <!-- End Produk Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="laporan.html">
+        <a class="nav-link collapsed" href="laporan.php">
           <i class="bi bi-bar-chart-line"></i>
           <span>Laporan</span>
         </a>
@@ -134,7 +231,7 @@ if (!isset($_SESSION["login"])) {
       <!-- End Laporan Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="users.html">
+        <a class="nav-link collapsed" href="users.php">
           <i class="bi bi-people"></i>
           <span>Manajemen User</span>
         </a>
@@ -149,7 +246,7 @@ if (!isset($_SESSION["login"])) {
       <h1>Dashboard</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
           <li class="breadcrumb-item active">Dashboard</li>
         </ol>
       </nav>
@@ -175,7 +272,7 @@ if (!isset($_SESSION["login"])) {
                       <i class="bi bi-box"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>120</h6>
+                      <h6><?= $data_produk['total_produk']; ?></h6>
                       <span class="text-muted small pt-2 ps-1">Total Produk</span>
                     </div>
                   </div>
@@ -196,7 +293,7 @@ if (!isset($_SESSION["login"])) {
                       <i class="bi bi-archive"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>540</h6>
+                      <h6><?= $data_stok['total_stok'] ?? 0; ?></h6>
                       <span class="text-muted small pt-2 ps-1">Jumlah Semua Stok</span>
                     </div>
                   </div>
@@ -217,7 +314,7 @@ if (!isset($_SESSION["login"])) {
                       <i class="bi bi-tags"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>12</h6>
+                      <h6><?= $data_kategori['total_kategori']; ?></h6>
                       <span class="text-muted small pt-2 ps-1">Total Kategori</span>
                     </div>
                   </div>
@@ -251,14 +348,18 @@ if (!isset($_SESSION["login"])) {
 
                   <script>
                     document.addEventListener("DOMContentLoaded", () => {
+
+                      const dataMasuk = <?= json_encode(array_values($masuk)); ?>;
+                      const dataKeluar = <?= json_encode(array_values($keluar)); ?>;
+
                       new ApexCharts(document.querySelector("#reportsChart"), {
                         series: [{
                             name: 'Barang Masuk',
-                            data: [10, 15, 8, 12, 20, 18, 25]
+                            data: dataMasuk
                           },
                           {
                             name: 'Barang Keluar',
-                            data: [5, 7, 6, 9, 10, 14, 16]
+                            data: dataKeluar
                           }
                         ],
                         chart: {
@@ -289,7 +390,7 @@ if (!isset($_SESSION["login"])) {
                           width: 2
                         },
                         xaxis: {
-                          categories: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
+                          categories: [...Array(31).keys()].map(i => i + 1) // tanggal 1–31
                         },
                         tooltip: {
                           x: {
@@ -321,24 +422,17 @@ if (!isset($_SESSION["login"])) {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <th>1</th>
-                        <td>Mouse Logitech</td>
-                        <td>Aksesoris</td>
-                        <td>25</td>
-                      </tr>
-                      <tr>
-                        <th>2</th>
-                        <td>Keyboard Mechanical</td>
-                        <td>Aksesoris</td>
-                        <td>10</td>
-                      </tr>
-                      <tr>
-                        <th>3</th>
-                        <td>Monitor 24 Inch</td>
-                        <td>Elektronik</td>
-                        <td>8</td>
-                      </tr>
+                      <?php
+                      $no = 1;
+                      while ($row = mysqli_fetch_assoc($query)) :
+                      ?>
+                        <tr>
+                          <th><?= $no++; ?></th>
+                          <td><?= $row['product_name']; ?></td>
+                          <td><?= $row['category_name']; ?></td>
+                          <td><?= $row['stock']; ?></td>
+                        </tr>
+                      <?php endwhile; ?>
                     </tbody>
                   </table>
 
@@ -368,16 +462,21 @@ if (!isset($_SESSION["login"])) {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Printer Epson</td>
-                    <td>3</td>
-                    <td><span class="badge bg-danger">Hampir Habis</span></td>
-                  </tr>
-                  <tr>
-                    <td>Flashdisk 32GB</td>
-                    <td>5</td>
-                    <td><span class="badge bg-warning">Menipis</span></td>
-                  </tr>
+                  <?php while ($row = mysqli_fetch_assoc($q_menipis)) : ?>
+                    <tr>
+                      <td><?= $row['product_name']; ?></td>
+                      <td><?= $row['stock']; ?></td>
+                      <td>
+                        <?php if ($row['stock'] == 0): ?>
+                          <span class="badge bg-danger">Habis</span>
+                        <?php elseif ($row['stock'] <= ($row['min_stock'] / 2)): ?>
+                          <span class="badge bg-danger">Hampir Habis</span>
+                        <?php else: ?>
+                          <span class="badge bg-warning">Menipis</span>
+                        <?php endif; ?>
+                      </td>
+                    </tr>
+                  <?php endwhile; ?>
                 </tbody>
               </table>
 
@@ -392,21 +491,39 @@ if (!isset($_SESSION["login"])) {
 
               <div class="activity">
 
-                <div class="activity-item d-flex">
-                  <div class="activite-label">10 menit lalu</div>
-                  <i class="bi bi-circle-fill activity-badge text-success"></i>
-                  <div class="activity-content">
-                    Penambahan stok "Mouse Logitech"
-                  </div>
-                </div>
+                <?php while ($row = mysqli_fetch_assoc($q_aktivitas)) :
 
-                <div class="activity-item d-flex">
-                  <div class="activite-label">30 menit lalu</div>
-                  <i class="bi bi-circle-fill activity-badge text-danger"></i>
-                  <div class="activity-content">
-                    Pengeluaran barang "Keyboard Mechanical"
+                  if ($row['change_type'] == 'ADD') {
+                    $text = "Penambahan stok";
+                    $color = "text-success";
+                  } elseif ($row['change_type'] == 'REDUCE') {
+                    $text = "Pengeluaran barang";
+                    $color = "text-danger";
+                  } else {
+                    $text = "Perubahan stok";
+                    $color = "text-primary";
+                  }
+
+                ?>
+
+                  <div class="activity-item d-flex">
+
+                    <div class="activite-label">
+                      <?= waktu_lalu($row['created_at']); ?>
+                    </div>
+
+                    <i class="bi bi-circle-fill activity-badge <?= $color ?> align-self-start"></i>
+
+                    <div class="activity-content">
+                      <?= $text; ?>
+                      <span class="fw-bold text-dark">
+                        "<?= $row['product_name']; ?>"
+                      </span>
+                    </div>
+
                   </div>
-                </div>
+
+                <?php endwhile; ?>
 
               </div>
 

@@ -8,6 +8,28 @@ if (!isset($_SESSION["login"])) {
   exit;
 }
 ?>
+
+<?php
+// total stok
+$total_item = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM products"));
+// Total transaksi barang masuk
+$total_barang_masuk = mysqli_num_rows(mysqli_query(
+  $conn,
+  "SELECT id FROM stock_logs WHERE change_type = 'ADD'"
+));
+
+// Total transaksi barang keluar
+$total_barang_keluar = mysqli_num_rows(mysqli_query(
+  $conn,
+  "SELECT id FROM stock_logs WHERE change_type = 'REDUCE'"
+));
+
+// Total item dengan stok kritis / minimum
+$total_stok_kritis = mysqli_num_rows(mysqli_query(
+  $conn,
+  "SELECT id FROM products WHERE stock <= min_stock"
+));
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,7 +37,7 @@ if (!isset($_SESSION["login"])) {
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Components / Accordion - NiceAdmin Bootstrap Template</title>
+  <title>Laporan - Sistem Informasi Inventory Produk (SIIP)</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -39,13 +61,6 @@ if (!isset($_SESSION["login"])) {
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
 
-  <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Updated: Sep 18 2023 with Bootstrap v5.3.2
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -164,8 +179,8 @@ if (!isset($_SESSION["login"])) {
               <p class="text-muted">Menampilkan seluruh data stok barang saat ini.</p>
 
               <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-primary">Total Item: 150</span>
-                <a href="laporan_stok.php" class="btn btn-sm btn-primary">
+                <span class="fw-bold text-primary">Total Item: <?= $total_item; ?></span>
+                <a href="laporan_stok.php" class="btn btn-sm btn-primary" target="_blank">
                   Lihat Laporan
                 </a>
               </div>
@@ -181,8 +196,8 @@ if (!isset($_SESSION["login"])) {
               <p class="text-muted">Riwayat barang yang masuk ke gudang.</p>
 
               <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-success">Total Transaksi: 80</span>
-                <a href="laporan_barang_masuk.php" class="btn btn-sm btn-success">
+                <span class="fw-bold text-success">Total Transaksi: <?= $total_barang_masuk; ?></span>
+                <a href="laporan_barang_masuk.php" class="btn btn-sm btn-success" target="_blank">
                   Lihat Laporan
                 </a>
               </div>
@@ -198,8 +213,8 @@ if (!isset($_SESSION["login"])) {
               <p class="text-muted">Riwayat barang yang keluar dari gudang.</p>
 
               <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-danger">Total Transaksi: 65</span>
-                <a href="laporan_barang_keluar.php" class="btn btn-sm btn-danger">
+                <span class="fw-bold text-danger">Total Transaksi: <?= $total_barang_keluar; ?></span>
+                <a href="laporan_barang_keluar.php" class="btn btn-sm btn-danger" target="_blank">
                   Lihat Laporan
                 </a>
               </div>
@@ -215,8 +230,8 @@ if (!isset($_SESSION["login"])) {
               <p class="text-muted">Barang dengan stok hampir habis.</p>
 
               <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-warning">Item Kritis: 12</span>
-                <a href="laporan_stok_minimum.php" class="btn btn-sm btn-warning">
+                <span class="fw-bold text-warning">Item Kritis: <?= $total_stok_kritis; ?></span>
+                <a href="laporan_stok_minimum.php" class="btn btn-sm btn-warning" target="_blank">
                   Lihat Laporan
                 </a>
               </div>
